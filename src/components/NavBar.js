@@ -1,14 +1,14 @@
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from './Logo.js';
 import './styles/NavBar.css';
 
 function NavBar() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   function signOut() {
     localStorage.removeItem('jwt');
-    history.push('/login');
+    navigate('/login');
   }
 
   return (
