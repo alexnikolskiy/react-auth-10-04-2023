@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from './Logo.js';
 import * as duckAuth from '../duckAuth.js';
 import './styles/Register.css';
@@ -10,8 +10,9 @@ function Register () {
     email: '',
     password: '',
     confirmPassword: '',
-    message: '',
   })
+  const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,6 +24,21 @@ function Register () {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (formValue.password !== formValue.confirmPassword) {
+      setErrorMessage('Passwords are not equal!')
+      return
+    }
+
+    const { username, password, email } = formValue
+
+    duckAuth.register(username, password, email)
+      .then(data => {
+        navigate('/login')
+      })
+      .catch(err => {
+        setErrorMessage(err)
+      })
   }
 
   return (
@@ -32,7 +48,7 @@ function Register () {
         Пожалуйста, зарегистрируйтесь.
       </p>
       <p className="register__error">
-        {formValue.message}
+        {errorMessage}
       </p>
       <form onSubmit={handleSubmit} className="register__form">
         <label htmlFor="username">

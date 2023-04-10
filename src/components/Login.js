@@ -1,14 +1,36 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Logo from './Logo.js';
 import * as duckAuth from '../duckAuth.js';
 import './styles/Login.css';
 
-function Login() {
+function Login({ handleLogin }) {
   const [formValue, setFormValue] = useState({
     username: '',
     password: '',
   })
+  const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const tokenCheck = () => {
+    const jwt = localStorage.getItem('jwt')
+    if (!jwt) {
+      return
+    }
+    duckAuth.getContent(jwt)
+      .then(res => {
+        if (res) {
+          handleLogin(res)
+          const url = location.state?.returnUrl || '/ducks'
+          navigate(url)
+        }
+      })
+  }
+
+  useEffect(() => {
+    tokenCheck()
+  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,6 +42,21 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!formValue.password || !formValue.username) {
+      setErrorMessage('Username or password are empty')
+      return
+    }
+
+    duckAuth.authorize(formValue.username, formValue.password)
+      .then(data => {
+        if (data.jwt) {
+          localStorage.setItem('jwt', data.jwt)
+          handleLogin(data.user)
+          const url = location.state?.returnUrl || '/ducks'
+          navigate(url)
+        }
+      })
   }
 
   return (
@@ -30,7 +67,7 @@ function Login() {
         Пожалуйста, войдите или зарегистрируйтесь, чтобы получить доступ к CryptoDucks.
       </p>
       <p className="login__error">
-        {formValue.message}
+        {errorMessage}
       </p>
       <form className="login__form">
         <label htmlFor="username">
