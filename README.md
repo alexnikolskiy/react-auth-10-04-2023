@@ -1,2 +1,3 @@
-# praktikum-demo-react-auth
-Demo project for Yandex.Praktikum webinar
+# 12. Авторизация на Реакте
+
+Пишем регистрацию и авторизацию в проекте CyberDuck на «Реакте»
